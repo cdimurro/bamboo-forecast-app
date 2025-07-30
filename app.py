@@ -127,4 +127,4 @@ def update_output(n_clicks, acres, land_cost_per_acre, planting_cost_per_acre, i
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
