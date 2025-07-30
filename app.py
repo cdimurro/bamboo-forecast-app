@@ -1,5 +1,5 @@
 import streamlit as st
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, dcc, html, Input, Output, State
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -38,7 +38,7 @@ dash_app.layout = html.Div([
 # Dash callback
 @dash_app.callback(
     Output('output', 'children'),
-    [Input('submit-button', 'n_clicks')],
+    Input('submit-button', 'n_clicks'),
     [State('acres', 'value'),
      State('land-cost-per-acre', 'value'),
      State('planting-cost-per-acre', 'value'),
