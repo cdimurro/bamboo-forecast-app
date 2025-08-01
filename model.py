@@ -3,9 +3,9 @@ import numpy as np
 import numpy_financial as npf
 
 def generate_projections(
-    land_area, land_cost_per_ha, soil_prep_cost_per_ha, seedling_cost_per_unit, planting_density,
-    planting_labor_per_ha, growth_period, harvest_cycle_freq, annual_yield_per_ha, fertilizer_cost_per_ha_yr,
-    irrigation_install_cost, annual_irrigation_maint, pest_control_per_ha_yr, weed_mgmt_per_ha_yr, harvesting_cost_per_ton,
+    land_area_acres, land_cost_per_acre, soil_prep_cost_per_acre, seedling_cost_per_unit, planting_density,
+    planting_labor_per_acre, growth_period, harvest_cycle_freq, annual_yield_per_acre, fertilizer_cost_per_acre_yr,
+    irrigation_install_cost, annual_irrigation_maint, pest_control_per_acre_yr, weed_mgmt_per_acre_yr, harvesting_cost_per_ton,
     internal_trans_cost_per_ton, pct_to_biochar, biochar_conversion_eff, pyrolysis_equip_cost, equip_install_cost,
     biochar_prod_capacity, energy_cost_per_ton, labor_cost_per_ton_biochar, equip_maint_per_yr, byproduct_value_per_ton_bamboo,
     bamboo_price_per_ton, biochar_price_per_ton, annual_bamboo_sales_vol, annual_biochar_sales_vol, annual_sales_growth,
@@ -57,7 +57,7 @@ def generate_projections(
 
     # Calculate for each year
     remaining_debt = debt_financing_amt
-    max_harvest = land_area * annual_yield_per_ha * (capacity_util_rate / 100) * harvest_cycle_freq
+    max_harvest = land_area_acres * annual_yield_per_acre * (capacity_util_rate / 100) * harvest_cycle_freq
     for i, year in enumerate(years):
         if year < growth_period:
             bamboo_vol = 0
@@ -80,7 +80,7 @@ def generate_projections(
         # Operating costs with inflation
         cost_inflation_factor = (1 + inflation_rate_costs / 100) ** (year - 1)
         fixed_costs = (admin_office_exp_annual + annual_irrigation_maint + equip_maint_per_yr + insurance_premiums + reg_compliance_annual) * cost_inflation_factor
-        variable_cultivation = (fertilizer_cost_per_ha_yr + pest_control_per_ha_yr + weed_mgmt_per_ha_yr) * land_area * cost_inflation_factor
+        variable_cultivation = (fertilizer_cost_per_acre_yr + pest_control_per_acre_yr + weed_mgmt_per_acre_yr) * land_area_acres * cost_inflation_factor
         harvest_costs = harvest_tons * (harvesting_cost_per_ton + internal_trans_cost_per_ton) * cost_inflation_factor
         biochar_prod_costs = (biochar_vol / biochar_conversion_eff) * (energy_cost_per_ton + labor_cost_per_ton_biochar) * cost_inflation_factor
         trans_costs = (bamboo_vol + biochar_vol) * product_trans_cost_per_ton * cost_inflation_factor
