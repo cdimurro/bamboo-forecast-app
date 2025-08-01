@@ -2,4 +2,4 @@ streamlit
 pandas
 numpy
 numpy-financial
-scipy
+fpdf2
