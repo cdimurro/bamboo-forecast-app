@@ -2,7 +2,13 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import numpy_financial as npf
-from fpdf2 import FPDF
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Image
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
+import altair as alt
 
 # Title
 st.title("Interactive Financial Model for Bamboo and Biochar Business")
@@ -261,25 +267,42 @@ if st.button("Generate Financial Forecasts"):
 
     # PDF Download Button
     def create_pdf(df, npv, irr):
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Financial Projections Report", ln=1, align='C')
-        pdf.cell(200, 10, txt=f"NPV: ${npv:,.2f}", ln=1)
-        pdf.cell(200, 10, txt=f"IRR: {irr:.2f}%", ln=1)
-        pdf.cell(200, 10, txt=f"Total Revenue: ${df['Total Revenue'].sum():,.2f}", ln=1)
-        pdf.cell(200, 10, txt=f"Total Net Income: ${df['Net Income'].sum():,.2f}", ln=1)
-        pdf.ln(10)
-        pdf.set_font("Arial", size=10)
-        col_width = 30
-        for col in df.columns:
-            pdf.cell(col_width, 10, str(col), border=1)
-        pdf.ln()
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+
+        # Title
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(100, height - 50, "Financial Projections Report")
+
+        # Key Metrics
+        c.setFont("Helvetica", 12)
+        c.drawString(100, height - 80, f"NPV: ${npv:,.2f}")
+        c.drawString(100, height - 100, f"IRR: {irr:.2f}%" if isinstance(irr, float) else f"IRR: {irr}")
+        c.drawString(100, height - 120, f"Total Revenue: ${df['Total Revenue'].sum():,.2f}")
+        c.drawString(100, height - 140, f"Total Net Income: ${df['Net Income'].sum():,.2f}")
+
+        # Projections Table
+        c.setFont("Helvetica", 10)
+        y = height - 170
+        col_width = 35
+        row_height = 10
+        # Headers
+        for idx, col in enumerate(df.columns):
+            c.drawString(50 + idx * col_width, y, col)
+        y -= row_height
+        # Rows
         for index, row in df.iterrows():
-            for value in row:
-                pdf.cell(col_width, 10, f"{value:.2f}", border=1)
-            pdf.ln()
-        return pdf.output(dest='S').encode('latin-1')
+            for idx, value in enumerate(row):
+                c.drawString(50 + idx * col_width, y, f"{value:.2f}")
+            y -= row_height
+            if y < 50:  # Add new page if needed
+                c.showPage()
+                y = height - 50
+
+        c.save()
+        buffer.seek(0)
+        return buffer.getvalue()
 
     pdf_bytes = create_pdf(df, npv, irr)
 
